@@ -38,13 +38,14 @@ class Trip(models.Model):
         return self.title
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-    image = models.ImageField(upload_to="category/")
+class IncludedFeature(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='included_features')
+    title = models.CharField("Пункт", max_length=100)
+    description = models.CharField("Описание", max_length=200)
+    icon = models.CharField("Иконка (FontAwesome)", max_length=30, blank=True)
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        ordering = ['id']
 
 
 class Date(models.Model):
