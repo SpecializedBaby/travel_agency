@@ -121,12 +121,14 @@ class TripRequest(models.Model):
 
 
 class Day(models.Model):
-    name = models.CharField(max_length=255)
-    place = models.CharField(max_length=255)
-    description = models.TextField()
-    activity = models.CharField(max_length=600)
-    image = models.ImageField(upload_to="day/")
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="days")
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='days')
+    title = models.CharField("День", max_length=255)
+    description = models.TextField("Описание дня")
+    accommodation = models.TextField("Проживание", blank=True)
+    meal_plan = models.CharField("Питание", max_length=100, blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
 
-    def __str__(self):
-        return f"{self.name} of {self.trip}"
+    class Meta:
+        ordering = ['order']
+        verbose_name = "День тура"
+        verbose_name_plural = "Дни тура"
