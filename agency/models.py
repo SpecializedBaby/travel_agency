@@ -13,18 +13,26 @@ def day_image_upload_path(instance, filename):
 
 
 class Trip(models.Model):
-    title = models.CharField(max_length=255)
-    category = models.ForeignKey(
-        "Category", on_delete=models.SET_NULL, related_name="trips", null=True
-    )
-    description = models.TextField()
-    destination = models.CharField(max_length=55)
-    price = models.DecimalField(max_digits=7, decimal_places=2)
-    max_members = models.PositiveIntegerField()
-    current_members = models.PositiveIntegerField()
-    image = models.ImageField(help_text="A General big photo.", upload_to="trip/")
-    includes = models.TextField()
-    not_includes = models.TextField()
+    COUNTRY_CHOICES = [
+        ('cz', 'Чехия'),
+        ('it', 'Италия'),
+        # ... другие страны
+    ]
+
+    title = models.CharField("Название тура", max_length=255)
+    country = models.CharField("Страна", max_length=2, choices=COUNTRY_CHOICES)
+    main_photo = models.ImageField("Главное фото", upload_to=trip_image_upload_path)
+    duration_days = models.PositiveIntegerField("Длительность (дней)")
+    accommodation = models.TextField("Проживание")
+    group_size = models.PositiveIntegerField("Макс. размер группы")
+    leaders = models.CharField("Команда", max_length=255)
+    seo_title = models.CharField(max_length=60, blank=True)
+    seo_description = models.TextField(blank=True)
+
+    # Метод для отображения мест в группе
+    @property
+    def available_spots(self):
+        return self.max_members - self.current_members
 
     def __str__(self):
         return self.title
