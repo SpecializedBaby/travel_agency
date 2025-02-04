@@ -62,7 +62,62 @@ class TripDate(models.Model):
             raise ValidationError("Дата окончания должна быть позже даты начала")
 
     def __str__(self):
-        return f"{self.trip} from {self.from_date} to {self.to_date}."
+        return f"{self.start_date} - {self.end_date} ({self.price}€)"
+
+
+class FAQ(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='faqs')
+    question = models.CharField("Вопрос", max_length=255)
+    answer = models.TextField("Ответ")
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ['order']
+
+
+class TripPhoto(models.Model):
+    PHOTO_TYPE_CHOICES = [
+        ('main', 'Главное фото'),
+        ('gallery', 'Фото галереи'),
+        ('slide', 'Фото слайдера'),
+    ]
+
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='photos')
+    photo = models.ImageField(upload_to=day_image_upload_path)
+    type = models.CharField(max_length=7, choices=PHOTO_TYPE_CHOICES)
+    caption = models.CharField("Подпись", max_length=100, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['trip', 'type'],
+                condition=models.Q(type='main'),
+                name='unique_main_photo'
+            )
+        ]
+
+
+class TripRequest(models.Model):
+    CONTACT_METHODS = [
+        ('tg', 'Telegram'),
+        ('wa', 'WhatsApp'),
+        ('call', 'Звонок'),
+    ]
+
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='requests')
+    name = models.CharField("Имя", max_length=100)
+    phone = models.CharField("Телефон", max_length=20)
+    email = models.EmailField("Email", blank=True)
+    preferred_contact = models.CharField("Способ связи", max_length=4, choices=CONTACT_METHODS)
+    notes = models.TextField("Комментарий", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_spam = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Простейшая анти-спам проверка
+        if 'http://' in self.notes or 'https://' in self.notes:
+            self.is_spam = True
+        super().save(*args, **kwargs)
 
 
 class Day(models.Model):
