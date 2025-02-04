@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -48,10 +49,17 @@ class IncludedFeature(models.Model):
         ordering = ['id']
 
 
-class Date(models.Model):
-    from_date = models.DateField()
-    to_date = models.DateField()
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="dates")
+class TripDate(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='trip_dates')
+    start_date = models.DateField("Дата начала")
+    end_date = models.DateField("Дата окончания")
+    price = models.DecimalField("Цена", max_digits=10, decimal_places=0)
+    available_spots = models.PositiveIntegerField("Доступные места")
+    is_special_offer = models.BooleanField("Спецпредложение", default=False)
+
+    def clean(self):
+        if self.start_date >= self.end_date:
+            raise ValidationError("Дата окончания должна быть позже даты начала")
 
     def __str__(self):
         return f"{self.trip} from {self.from_date} to {self.to_date}."
