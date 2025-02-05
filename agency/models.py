@@ -4,14 +4,14 @@ from django.core.exceptions import ValidationError
 
 
 # Must be to connect to img models these functions!
-def trip_image_upload_path(instance, filename):
-    # Generate file path for the trip's general image
-    return f"media/trip_{instance.id}/general/{filename}"
+def image_upload_path(instance, filename):
+    if instance is not TripPhoto:
+        raise ValueError("this func works only with instance TripPhoto")
 
+    if instance.type not in dict(instance.PHOTO_TYPE_CHOICES).keys():
+        raise ValueError(f"Недопустимый тип фото: {instance.type}")
 
-def day_image_upload_path(instance, filename):
-    # Generate file path for each day's image
-    return f"media/trip_{instance.trip.id}/days/day_{instance.id}/{filename}"
+    return f"media/trip_{instance.trip.id}/{instance.type}/{timezone.now().strftime('%Y%m%d%H%M%S')}_{filename}"
 
 
 class Trip(models.Model):
@@ -38,6 +38,42 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TripPhoto(models.Model):
+    PHOTO_TYPE_CHOICES = [
+        ('main', 'Главное фото(1)'),
+        ('gallery', 'Фото галереи(5)'),
+        ('slide', 'Фото с тура(n)'),
+    ]
+
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='photos')
+    photo = models.ImageField(upload_to=image_upload_path)
+    type = models.CharField(max_length=7, choices=PHOTO_TYPE_CHOICES)
+    caption = models.CharField("Подпись", max_length=100, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['trip', 'type'],
+                condition=models.Q(type='main'),
+                name='unique_main_photo'
+            )
+        ]
+
+
+class ProgramByDay(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='days')
+    day_number = models.PositiveIntegerField("День", default=1)
+    title = models.CharField("Место", max_length=60)
+    description = models.TextField("Описание дня")
+    accommodation = models.TextField("Проживание", blank=True)
+    meal_plan = models.CharField("Питание", max_length=100, blank=True)
+
+    class Meta:
+        ordering = ['day_number']
+        verbose_name = "День тура"
+        verbose_name_plural = "Дни тура"
 
 
 class IncludedFeature(models.Model):
