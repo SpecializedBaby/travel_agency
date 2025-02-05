@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     "agency",
 ]
 
+TELEGRAM_BOT_TOKEN = "ваш_токен"
+TELEGRAM_CHAT_ID = "ваш_чат_id"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

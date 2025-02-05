@@ -1,6 +1,10 @@
-from django.utils import timezone
-from django.db import models
+from venv import logger
+
+import requests
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
 
 
 # Must be to connect to img models these functions!
@@ -133,8 +137,32 @@ class TripRequest(models.Model):
         if any(keyword in self.notes.lower() for keyword in spam_keywords):
             self.is_spam = True
 
+    def send_telegram_notification(self):
+        message = (
+            f"🚀 Новая заявка!\n"
+            f"Тур: {self.trip.title}\n"
+            f"Имя: {self.name}\n"
+            f"Телефон: {self.phone}\n"
+            f"Способ связи: {self.get_preferred_contact_display()}"
+        )
+
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": settings.TELEGRAM_CHAT_ID,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+
+        try:
+            requests.post(url, json=payload, timeout=5)
+        except Exception as e:
+            logger.error(f"Telegram notification failed: {str(e)}")
+
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
         super().save(*args, **kwargs)
+        if is_new and not self.is_spam:
+            self.send_telegram_notification()
 
 
 class FAQ(models.Model):
