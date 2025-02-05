@@ -5,7 +5,9 @@ from venv import logger
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
+from django.urls import reverse
 
 
 # Must be to connect to img models these functions!
@@ -46,6 +48,20 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('trip_detail', kwargs={'pk': self.pk})
+
+    @property
+    def current_members(self):
+        return self.trip_dates.aggregate(total=Sum('current_numbers'))['total'] or 0
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['title']),
+            models.Index(fields=['country']),
+            models.Index(fields=['created_at'])
+        ]
 
 
 class TripPhoto(models.Model):
