@@ -1,3 +1,5 @@
+import re
+
 import requests
 
 from venv import logger
@@ -106,6 +108,9 @@ class IncludedFeature(models.Model):
     description = models.CharField("Описание", max_length=200)
     icon = models.CharField("Иконка (FontAwesome)", max_length=30, blank=True)
 
+    def __str__(self):
+        return f"{self.title} ({self.trip.title})"
+
     class Meta:
         ordering = ['id']
 
@@ -122,6 +127,9 @@ class TripDate(models.Model):
     def clean(self):
         if self.start_date >= self.end_date:
             raise ValidationError("Дата окончания должна быть позже даты начала")
+
+        if self.start_date < timezone.now().date():
+            raise ValidationError("Дата начала не может быть в прошлом.")
 
     @property
     def available_spots(self):
@@ -161,6 +169,9 @@ class TripRequest(models.Model):
         if any(keyword in self.notes.lower() for keyword in spam_keywords):
             self.is_spam = True
 
+        if not re.match(r'^\+?[1-9]\d{7,14}$', self.phone):
+            raise ValidationError("Некорректный номер телефона.")
+
     def send_telegram_notification(self):
         message = (
             f"🚀 Новая заявка!\n"
@@ -178,7 +189,8 @@ class TripRequest(models.Model):
         }
 
         try:
-            requests.post(url, json=payload, timeout=5)
+            response = requests.post(url, json=payload, timeout=5)
+            response.raise_for_status()  # check HTTP status
         except Exception as e:
             logger.error(f"Telegram notification failed: {str(e)}")
 
@@ -188,12 +200,21 @@ class TripRequest(models.Model):
         if is_new and not self.is_spam:
             self.send_telegram_notification()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['phone']),
+            models.Index(fields=['created_at']),
+        ]
+
 
 class FAQ(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='faqs')
     question = models.CharField("Вопрос", max_length=255)
     answer = models.TextField("Ответ")
     order = models.PositiveIntegerField("Порядок", default=0)
+
+    def __str__(self):
+        return f"Вопрос: {self.question} (Тур: {self.trip.title})"
 
     class Meta:
         ordering = ['order']
