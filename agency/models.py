@@ -10,7 +10,7 @@ from django.utils import timezone
 
 # Must be to connect to img models these functions!
 def image_upload_path(instance, filename):
-    if instance is not TripPhoto:
+    if isinstance(instance, TripPhoto):
         raise ValueError("this func works only with instance TripPhoto")
 
     if instance.type not in dict(instance.PHOTO_TYPE_CHOICES).keys():
