@@ -134,9 +134,6 @@ class TripRequest(models.Model):
             self.is_spam = True
 
     def save(self, *args, **kwargs):
-        # Простейшая анти-спам проверка
-        if 'http://' in self.notes or 'https://' in self.notes:
-            self.is_spam = True
         super().save(*args, **kwargs)
 
 
