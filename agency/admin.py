@@ -89,16 +89,18 @@ class TripPhotoAdmin(admin.ModelAdmin):
     photo_preview.short_description = "Предпросмотр"
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+@admin.register(ProgramByDay)
+class ProgramByDayAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'day_number', 'title', 'accommodation')
+    list_filter = ('trip', 'day_number')
+    search_fields = ('trip__title', 'title', 'description')
 
 
-@admin.register(Date)
-class DateAdmin(admin.ModelAdmin):
-    list_display = ("trip", "from_date", "to_date")
-    list_filter = ("trip",)
+@admin.register(IncludedFeature)
+class IncludedFeatureAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'title', 'icon')
+    list_filter = ('trip', )
+    search_fields = ('trip__title', 'title', 'description')
 
 
 @admin.register(Day)
