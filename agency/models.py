@@ -1,5 +1,6 @@
-from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.db import models
+from django.core.exceptions import ValidationError
 
 
 # Must be to connect to img models these functions!
@@ -112,6 +113,20 @@ class TripRequest(models.Model):
     notes = models.TextField("Комментарий", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_spam = models.BooleanField(default=False)
+
+    def clean(self):
+        # Проверка на частые запросы
+        recent_requests = TripRequest.objects.filter(
+            phone=self.phone,
+            created_at__gte=timezone.now() - timezone.timedelta(hours=1)
+        ).count()
+
+        if recent_requests >= 3:
+            raise ValidationError("Слишком много запросов. Попробуйте позже.")
+
+        spam_keywords = ['http', 'www', 'куплю', 'продам']
+        if any(keyword in self.notes.lower() for keyword in spam_keywords):
+            self.is_spam = True
 
     def save(self, *args, **kwargs):
         # Простейшая анти-спам проверка
