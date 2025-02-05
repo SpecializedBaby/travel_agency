@@ -23,18 +23,14 @@ class Trip(models.Model):
 
     title = models.CharField("Название тура", max_length=255)
     country = models.CharField("Страна", max_length=2, choices=COUNTRY_CHOICES)
-    main_photo = models.ImageField("Главное фото", upload_to=trip_image_upload_path)
+    welcome_message = models.CharField("Приветственное сообщение", max_length=255)
     duration_days = models.PositiveIntegerField("Длительность (дней)")
     accommodation = models.TextField("Проживание")
     group_size = models.PositiveIntegerField("Макс. размер группы")
     leaders = models.CharField("Команда", max_length=255)
+    bonus = models.CharField("Подарки", max_length=255, blank=True)
     seo_title = models.CharField(max_length=60, blank=True)
     seo_description = models.TextField(blank=True)
-
-    # Метод для отображения мест в группе
-    @property
-    def available_spots(self):
-        return self.max_members - self.current_members
 
     def __str__(self):
         return self.title
@@ -78,7 +74,7 @@ class ProgramByDay(models.Model):
 
 class IncludedFeature(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='included_features')
-    title = models.CharField("Пункт", max_length=100)
+    title = models.CharField("Пункт", max_length=60)
     description = models.CharField("Описание", max_length=200)
     icon = models.CharField("Иконка (FontAwesome)", max_length=30, blank=True)
 
@@ -171,15 +167,11 @@ class TripRequest(models.Model):
         super().save(*args, **kwargs)
 
 
-class Day(models.Model):
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='days')
-    title = models.CharField("День", max_length=255)
-    description = models.TextField("Описание дня")
-    accommodation = models.TextField("Проживание", blank=True)
-    meal_plan = models.CharField("Питание", max_length=100, blank=True)
+class FAQ(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='faqs')
+    question = models.CharField("Вопрос", max_length=255)
+    answer = models.TextField("Ответ")
     order = models.PositiveIntegerField("Порядок", default=0)
 
     class Meta:
         ordering = ['order']
-        verbose_name = "День тура"
-        verbose_name_plural = "Дни тура"
