@@ -103,7 +103,36 @@ class IncludedFeatureAdmin(admin.ModelAdmin):
     search_fields = ('trip__title', 'title', 'description')
 
 
-@admin.register(Day)
-class DayAdmin(admin.ModelAdmin):
-    list_display = ("trip", "place", "activity")
-    list_filter = ("trip",)
+@admin.register(TripDate)
+class TripDateAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'start_date', 'end_date', 'price', 'available_spots', 'is_special_offer')
+    list_filter = ('trip', 'start_date', 'is_special_offer')
+    search_fields = ('trip__title', )
+
+    def available_spots(self, obj):
+        return obj.trip.group_size - obj.current_members
+    available_spots.short_description = "Доступные места"
+
+
+@admin.register(TripRequest)
+class TripRequestAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'name', 'phone', 'preferred_contact', 'created_at', 'is_spam')
+    list_filter = ('trip', 'preferred_contact', 'is_spam')
+    search_fields = ('trip__title', 'name', 'phone', 'email')
+    readonly_fields = ('created_at', )
+    actions = ['mark_as_spam', 'mark_as_not_spam']
+
+    def mark_as_spam(self, request, queryset):
+        queryset.update(is_spam=True)
+    mark_as_spam.short_description = "Пометить как спам"
+
+    def mark_as_not_spam(self, request, queryset):
+        queryset.update(is_spam=False)
+    mark_as_not_spam.short_description = "Снять пометку спама"
+
+
+@admin.register(FAQ)
+class FAQAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'question', 'order')
+    list_filter = ('trip', )
+    search_fields = ('trip__title', 'question', 'answer')
