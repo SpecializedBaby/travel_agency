@@ -1,8 +1,6 @@
 import re
-
+import logging
 import requests
-
-from venv import logger
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -12,15 +10,20 @@ from django.utils import timezone
 from django.urls import reverse
 
 
+logger = logging.getLogger(__name__)
+
+
 # Must be to connect to img models these functions!
 def image_upload_path(instance, filename):
-    if isinstance(instance, TripPhoto):
-        raise ValueError("this func works only with instance TripPhoto")
+
+    # if isinstance(instance, TripPhoto):
+    #     raise ValueError("this func works only with instance TripPhoto")
 
     if instance.type not in dict(instance.PHOTO_TYPE_CHOICES).keys():
         raise ValueError(f"Недопустимый тип фото: {instance.type}")
 
-    return f"media/trip_{instance.trip.id}/{instance.type}/{timezone.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+    timestamp = timezone.now().strftime('%Y-%m-%d_%H-%M-%S')
+    return f"trip_{instance.trip.id}/{instance.type}/{timestamp}_{filename}"
 
 
 class Trip(models.Model):
@@ -41,7 +44,7 @@ class Trip(models.Model):
     country = models.CharField("Страна", max_length=2, choices=COUNTRY_CHOICES)
     welcome_message = models.CharField("Приветственное сообщение", max_length=255)
     duration_days = models.PositiveIntegerField("Длительность (дней)")
-    accommodation = models.TextField("Проживание", default="По 2 в комнате")
+    accommodation = models.CharField("Проживание", max_length=255, default="По 2 в комнате")
     group_size = models.PositiveIntegerField("Макс. размер группы")
     leaders = models.CharField("Команда", max_length=255, default="Сопровождение тур-лидером Fiery Trips")
     bonus = models.CharField("Подарки", max_length=255, blank=True)
