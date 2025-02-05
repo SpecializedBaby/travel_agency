@@ -47,10 +47,46 @@ class FAQInline(admin.TabularInline):
 
 @admin.register(Trip)
 class TripAdmin(admin.ModelAdmin):
-    list_display = ("title", "destination", "price", "max_members", "current_members")
-    search_fields = ("title", "destination")
-    list_filter = ("category",)
-    # additional configurations as necessary
+    list_display = ('title', 'country', 'duration_days', 'group_size', 'created_at')
+    readonly_fields = ('created_at', )
+    list_filter = ('country', 'duration_days', 'group_size')
+    search_fields = ('title', 'description', 'destination')
+    prepopulated_fields = {'slug': ('title', )}
+    inlines = [
+        TripPhotoInline,
+        ProgramByDayInline,
+        IncludedFeatureInline,
+        TripDateInline,
+        FAQInline,
+    ]
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('title', 'slug', 'country', 'welcome_message', 'duration_days')
+        }),
+        ('Детали тура', {
+            'fields': ('ask_title', 'description', 'accommodation', 'group_size', 'leaders', 'bonus')
+        }),
+        ('SEO', {
+            'fields': ('seo_title', 'seo_description'),
+            'classes': ('collapse', )
+        }),
+    )
+
+
+@admin.register(TripPhoto)
+class TripPhotoAdmin(admin.ModelAdmin):
+    list_display = ('trip', 'type', 'photo_preview', 'caption')
+    list_filter = ('type', )
+    search_fields = ('trip__title', 'caption')
+    readonly_fields = ('photo_preview', )
+
+    def photo_preview(self, obj):
+        if obj.photo:
+            return mark_safe(f'<img src="{obj.photo.url}" style="max-height: 100px;" />')
+        return "Нет фото"
+
+    photo_preview.allow_tags = True
+    photo_preview.short_description = "Предпросмотр"
 
 
 @admin.register(Category)
