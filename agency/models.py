@@ -1,6 +1,7 @@
+import requests
+
 from venv import logger
 
-import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -22,7 +23,14 @@ class Trip(models.Model):
     COUNTRY_CHOICES = [
         ('cz', 'Чехия'),
         ('it', 'Италия'),
-        # ... другие страны
+        ('is', 'Исландия'),
+        ('eg', 'Египет'),
+        ('pt', 'Португалия'),
+        ('es', 'Испания'),
+        ('jo', 'Иордания'),
+        ('fr', 'Франция'),
+        ('nl', 'Нидерланды'),
+        ('no', 'Норвегия'),
     ]
 
     title = models.CharField("Название тура", max_length=255)
