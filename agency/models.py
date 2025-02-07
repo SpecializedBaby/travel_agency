@@ -40,6 +40,7 @@ class Trip(models.Model):
         ('no', 'Норвегия'),
     ]
 
+    status = models.CharField(max_length=10, choices=[('active', 'Active'), ('inactive', 'Inactive')], default='active')
     title = models.CharField("Название тура", max_length=255)
     country = models.CharField("Страна", max_length=2, choices=COUNTRY_CHOICES)
     welcome_message = models.CharField("Приветственное сообщение", max_length=255)
@@ -93,6 +94,9 @@ class TripPhoto(models.Model):
                 name='unique_main_photo'
             )
         ]
+
+    def __str__(self):
+        return f"Photo for {self.trip.title}"
 
 
 class ProgramByDay(models.Model):
@@ -225,3 +229,22 @@ class FAQ(models.Model):
 
     class Meta:
         ordering = ['order']
+
+
+class Sociallink(models.Model):
+    icon = models.CharField("FontAwesome", max_length=30, blank=True)
+    url = models.URLField("URL")
+
+    def __str__(self):
+        return f"{self.icon} ({self.url})"
+
+
+class Review(models.Model):
+    avatar = models.ImageField(upload_to='reviews')
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.avatar.name}"
+
+
