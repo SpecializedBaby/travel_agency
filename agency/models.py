@@ -232,6 +232,7 @@ class FAQ(models.Model):
 
 
 class Sociallink(models.Model):
+    name = models.CharField(max_length=60)
     icon = models.CharField("FontAwesome", max_length=30, blank=True)
     url = models.URLField("URL")
 
@@ -240,6 +241,7 @@ class Sociallink(models.Model):
 
 
 class Review(models.Model):
+    name = models.CharField(max_length=60)
     avatar = models.ImageField(upload_to='reviews')
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
