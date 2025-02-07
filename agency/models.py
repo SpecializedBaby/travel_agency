@@ -131,7 +131,7 @@ class TripDate(models.Model):
     start_date = models.DateField("Дата начала")
     end_date = models.DateField("Дата окончания")
     price = models.DecimalField("Цена", max_digits=10, decimal_places=0)
-    current_members = models.PositiveIntegerField("Количество брони")
+    current_members = models.PositiveIntegerField("Количество брони", default=0)
     is_special_offer = models.BooleanField("Спецпредложение", default=False)
     icon = models.CharField("Иконка офера (FontAwesome)", max_length=30, blank=True)
 
@@ -216,6 +216,9 @@ class TripRequest(models.Model):
             models.Index(fields=['phone']),
             models.Index(fields=['created_at']),
         ]
+
+    def __str__(self):
+        return f"Request for {self.trip.title} by {self.name}"
 
 
 class FAQ(models.Model):
