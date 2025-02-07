@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 
 from .models import (
     Trip, TripPhoto, ProgramByDay, IncludedFeature,
-    TripDate, TripRequest, FAQ
+    TripDate, TripRequest, FAQ, Sociallink, Review
 )
 
 
@@ -47,9 +47,9 @@ class FAQInline(admin.TabularInline):
 
 @admin.register(Trip)
 class TripAdmin(admin.ModelAdmin):
-    list_display = ('title', 'country', 'duration_days', 'group_size', 'created_at')
+    list_display = ('status', 'title', 'country', 'duration_days', 'group_size', 'created_at')
     readonly_fields = ('created_at', )
-    list_filter = ('country', 'duration_days', 'group_size')
+    list_filter = ('status', 'country', 'duration_days', 'group_size')
     search_fields = ('title', 'description', 'destination')
     prepopulated_fields = {'slug': ('title', )}
     inlines = [
@@ -136,3 +136,18 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('trip', 'question', 'order')
     list_filter = ('trip', )
     search_fields = ('trip__title', 'question', 'answer')
+
+
+@admin.register(Sociallink)
+class SociallinkAdmin(admin.ModelAdmin):
+    list_display = ('name', 'url', 'icon')
+    list_filter = ('name', )
+    search_fields = ('name', 'url', 'icon')
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('name', 'avatar', 'text', 'created_at')
+    readonly_fields = ('created_at', )
+    list_filter = ('name', 'created_at')
+    search_fields = ('name', 'text')
