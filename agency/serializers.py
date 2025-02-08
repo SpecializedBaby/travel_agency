@@ -6,20 +6,20 @@ from .models import Review, Sociallink, FAQ, TripRequest, TripDate, IncludedFeat
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['name', 'avatar', 'text', 'created_at']
+        fields = ['id', 'name', 'avatar', 'text', 'created_at']
         read_only_fields = ['created_at']
 
 
 class SociallinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sociallink
-        fields = ['name', 'icon', 'url', ]
+        fields = ['id', 'name', 'icon', 'url', ]
 
 
 class FAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = FAQ
-        fields = ['question', 'answer', ]
+        fields = ['id', 'question', 'answer', ]
 
 
 class TripDateSerializer(serializers.ModelSerializer):
@@ -29,7 +29,7 @@ class TripDateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TripDate
-        fields = ['formatted_start_date', 'formatted_end_date', 'available_spots', 'price', 'current_members', ]
+        fields = ['id', 'formatted_start_date', 'formatted_end_date', 'available_spots', 'price', 'current_members', ]
 
     def get_available_spots(self, obj):
         return obj.trip.group_size - obj.current_members
@@ -43,19 +43,19 @@ class TripDateSerializer(serializers.ModelSerializer):
 class IncludedFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = IncludedFeature
-        fields = ['title', 'description', 'icon']
+        fields = ['id', 'title', 'description', 'icon']
 
 
 class ProgramByDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProgramByDay
-        fields = ['day_number', 'title', 'description', 'accommodation', 'meal_plan', ]
+        fields = ['id', 'day_number', 'title', 'description', 'accommodation', 'meal_plan', ]
 
 
 class TripPhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TripPhoto
-        fields = ['photo', 'type', 'caption', ]
+        fields = ['id', 'photo', 'type', 'caption', ]
 
 
 class TripReviewSerializer(serializers.ModelSerializer):
@@ -90,7 +90,7 @@ class TripRequestSerializer(serializers.ModelSerializer):
     trip = TripListSerializer(read_only=True)
     class Meta:
         model = TripRequest
-        fields = ['trip', 'name', 'phone', 'email', 'preferred_contact', 'notes', 'created_at', ]
+        fields = ['id', 'trip', 'name', 'phone', 'email', 'preferred_contact', 'notes', 'created_at', ]
         read_only_fields = ['created_at', ]
 
 
