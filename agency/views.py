@@ -1,14 +1,14 @@
-from rest_framework import viewsets, status
+from rest_framework import generics, mixins, viewsets
 from django.shortcuts import render
 
-from agency.models import Trip
-from agency.serializers import TripSerializer
+from .models import Trip
+from .serializers import TripReviewSerializer, TripListSerializer
 
 
-def index(request):
-    return render(request, "agency/index.html")
-
-
-class TripViewSet(viewsets.ModelViewSet):
+class TripViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return TripReviewSerializer
+        return TripListSerializer

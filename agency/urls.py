@@ -3,17 +3,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 
-from agency.views import index
-
 from .views import TripViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r'trips', TripViewSet)
-
+router.register("trips", TripViewSet)
 
 urlpatterns = [
-    path("api/", include(router.urls)),
+    path("", include(router.urls)),
 ]
 
 

@@ -1,3 +1,4 @@
+from django.conf.urls.static import static
 from rest_framework import serializers
 from .models import Review, Sociallink, FAQ, TripRequest, TripDate, IncludedFeature, ProgramByDay, TripPhoto, Trip
 
@@ -57,9 +58,9 @@ class TripPhotoSerializer(serializers.ModelSerializer):
         fields = ['photo', 'type', 'caption', ]
 
 
-class TripSerializer(serializers.ModelSerializer):
+class TripReviewSerializer(serializers.ModelSerializer):
     photos = TripPhotoSerializer(many=True, read_only=True)
-    program_by_days = ProgramByDaySerializer()
+    program_by_days = ProgramByDaySerializer(many=True, read_only=True)
     included_features = IncludedFeatureSerializer(many=True, read_only=True)
     trip_dates = TripDateSerializer(many=True, read_only=True)
 
@@ -71,9 +72,22 @@ class TripSerializer(serializers.ModelSerializer):
             'included_features', 'trip_dates', 'group_size', 'leaders',
         ]
 
+class TripListSerializer(TripReviewSerializer):
+    photo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trip
+        fields = ['id', 'photo', 'status', 'title', 'country', 'duration_days', 'group_size', 'trip_dates']
+
+    @staticmethod
+    def get_photo(obj):
+        slide_photos = obj.photos.filter(type='slide')
+        random_photo = slide_photos.order_by('?').first()
+        return TripPhotoSerializer(random_photo).data if random_photo else None
+
 
 class TripRequestSerializer(serializers.ModelSerializer):
-    trip = TripSerializer(read_only=True)
+    trip = TripListSerializer(read_only=True)
     class Meta:
         model = TripRequest
         fields = ['trip', 'name', 'phone', 'email', 'preferred_contact', 'notes', 'created_at', ]
