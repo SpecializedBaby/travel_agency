@@ -3,17 +3,22 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 
-from .views import TripViewSet, TripPhotoViewSet
-
+from .views import (
+    TripViewSet,
+    TripPhotoViewSet,
+    TripRequestListCreateViewSet, ReviewViewSet, SocialLinkViewSet,
+)
 
 router = routers.DefaultRouter()
 router.register("trips", TripViewSet)
-router.register("trip-photos", TripPhotoViewSet)
+router.register("photos", TripPhotoViewSet)
+router.register("request", TripRequestListCreateViewSet)
+router.register("reviews", ReviewViewSet)
+router.register("social-links", SocialLinkViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
 ]
-
 
 app_name = "agency"
 
