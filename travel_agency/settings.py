@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = [
+    "localhost",
+    "127.0.0.1",
+]
 
 # Application definition
 
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "agency",
+    "debug_toolbar",
 ]
 
 TELEGRAM_BOT_TOKEN = "ваш_токен"
@@ -47,6 +52,7 @@ TELEGRAM_CHAT_ID = "ваш_чат_id"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -134,3 +140,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# for Django debug toolbar
+import mimetypes
+mimetypes.add_type("application/javascript", ".js", True)
