@@ -100,7 +100,7 @@ class TripPhoto(models.Model):
 
 
 class ProgramByDay(models.Model):
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='days')
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='program_by_days')
     day_number = models.PositiveIntegerField("День", default=1)
     title = models.CharField("Место", max_length=60)
     description = models.TextField("Описание дня")
