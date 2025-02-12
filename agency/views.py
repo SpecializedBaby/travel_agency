@@ -16,41 +16,9 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         # Use TripRetrieveSerializer for the retrieve action
-        if self.action == 'retrieve':
+        if self.action in ['retrieve', 'create', 'partial_update', 'update']:
             return TripRetrieveSerializer
         return TripListSerializer
-
-    @staticmethod
-    def get_base_queryset():
-        """
-        Returns the base queryset with only the necessary fields.
-        """
-        return Trip.objects.only(
-            "id", "status", "title", "country", "duration_days", "group_size",
-        )
-
-    @staticmethod
-    def get_prefetch_config():
-        """
-        Returns the prefetch configuration for photos and trip_dates.
-        """
-        return [
-            Prefetch(
-                "photos",
-                queryset=TripPhoto.objects.filter(type="slide"),
-                to_attr="slide_photos",
-            ),
-            Prefetch(
-                "photos",
-                queryset=TripPhoto.objects.filter(type="gallery"),
-                to_attr="gallery_photos",
-            ),
-            Prefetch(
-                "trip_dates",
-                queryset=TripDate.objects.only("start_date", "price"),
-                to_attr="trip_dates_list",
-            ),
-        ]
 
     def get_queryset(self):
         """

@@ -22,10 +22,6 @@ class FAQSerializer(serializers.ModelSerializer):
 
 
 class TripDateSerializer(serializers.ModelSerializer):
-    available_spots = serializers.SerializerMethodField()
-    formatted_start_date = serializers.SerializerMethodField()
-    formatted_end_date = serializers.SerializerMethodField()
-
     class Meta:
         model = TripDate
         fields = ['id', 'formatted_start_date', 'formatted_end_date', 'available_spots', 'price', 'current_members', ]
@@ -41,6 +37,10 @@ class TripDateSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_formatted_end_date(obj):
         return obj.end_date.strftime('%d %b, %Y')
+        fields = [
+            'id', 'start_date', 'end_date',
+            'available_spots', 'price', 'current_members',
+        ]
 
 
 class IncludedFeatureSerializer(serializers.ModelSerializer):
@@ -58,7 +58,7 @@ class ProgramByDaySerializer(serializers.ModelSerializer):
 class TripPhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TripPhoto
-        fields = ['photo', ]
+        fields = ['id', 'photo', 'type']
 
 
 class TripRetrieveSerializer(serializers.ModelSerializer):
