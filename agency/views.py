@@ -21,31 +21,40 @@ class TripViewSet(viewsets.ModelViewSet):
         return TripListSerializer
 
     def get_queryset(self):
-        """
-        Returns the optimized queryset based on the action.
-        """
-        base_queryset = self.get_base_queryset()
-        prefetch_fields = self.get_prefetch_config()
+        queryset = self.queryset
+        prefetch_fields = [
+            Prefetch(
+                "photos",
+                queryset=TripPhoto.objects.filter(type="slide"),
+                to_attr="slide_photos",
+            ),
+            Prefetch(
+                "trip_dates",
+                queryset=TripDate.objects.all(),
+                to_attr="trip_dates_list",
+            ),
+
+        ]
+
 
         # Add additional prefetch fields for the retrieve action
         if self.action == "retrieve":
             prefetch_fields.extend([
-                Prefetch("program_by_days", ProgramByDay.objects.all()),
-                Prefetch("included_features", IncludedFeature.objects.all()),
-                Prefetch("faqs", FAQ.objects.all()),
+                Prefetch("program_by_days", ProgramByDay.objects.all(),),
+                Prefetch("included_features", IncludedFeature.objects.all(),),
+                Prefetch("faqs", FAQ.objects.all(),),
             ])
 
-        return base_queryset.prefetch_related(*prefetch_fields)
+        return queryset.prefetch_related(*prefetch_fields)
 
     @action(detail=False, methods=['GET'], url_path=r"countries/(?P<country_code>\w+)")
     def country_trips(self, request, country_code):
         """
         Custom action to fetch trips for a specific country.
         """
-        base_queryset = self.get_base_queryset()
-        prefetch_fields = self.get_prefetch_config()
+        queryset = self.get_queryset()
 
-        trips = base_queryset.filter(country=country_code).prefetch_related(*prefetch_fields)
+        trips = queryset.filter(country=country_code)
 
         # Handle case where no trips are found
         if not trips.exists():
