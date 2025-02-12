@@ -2,19 +2,6 @@ from rest_framework import serializers
 from .models import Review, Sociallink, FAQ, TripRequest, TripDate, IncludedFeature, ProgramByDay, TripPhoto, Trip
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ['id', 'name', 'avatar', 'text', 'created_at']
-        read_only_fields = ['created_at']
-
-
-class SocialLinkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sociallink
-        fields = ['id', 'name', 'icon', 'url', ]
-
-
 class FAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = FAQ
@@ -24,19 +11,6 @@ class FAQSerializer(serializers.ModelSerializer):
 class TripDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = TripDate
-        fields = ['id', 'formatted_start_date', 'formatted_end_date', 'available_spots', 'price', 'current_members', ]
-
-    @staticmethod
-    def get_available_spots(obj):
-        return obj.trip.group_size - obj.current_members
-
-    @staticmethod
-    def get_formatted_start_date(obj):
-        return obj.start_date.strftime('%d %b, %Y')
-
-    @staticmethod
-    def get_formatted_end_date(obj):
-        return obj.end_date.strftime('%d %b, %Y')
         fields = [
             'id', 'start_date', 'end_date',
             'available_spots', 'price', 'current_members',
@@ -62,30 +36,48 @@ class TripPhotoSerializer(serializers.ModelSerializer):
 
 
 class TripRetrieveSerializer(serializers.ModelSerializer):
-    photos = TripPhotoSerializer(many=True, read_only=True)
-    program_by_days = ProgramByDaySerializer(many=True, read_only=True)
-    included_features = IncludedFeatureSerializer(many=True, read_only=True)
-    trip_dates = TripDateSerializer(many=True, read_only=True)
-    faqs = FAQSerializer(many=True, read_only=True)
+    photos = TripPhotoSerializer(many=True)
+    program_by_days = ProgramByDaySerializer(many=True)
+    included_features = IncludedFeatureSerializer(many=True)
+    trip_dates = TripDateSerializer(many=True)
+    faqs = FAQSerializer(many=True)
+    # Optional fields for read only
+    available_spots = serializers.SerializerMethodField(read_only=True)
+    formatted_start_date = serializers.SerializerMethodField(read_only=True)
+    formatted_end_date = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Trip
         fields = [
-            'id', 'status', 'title', 'country', 'welcome_message', 'duration_days', 'accommodation',
-            'bonus', 'ask_title', 'description', 'created_at', 'photos', 'program_by_days',
-            'included_features', 'trip_dates', 'group_size', 'leaders', 'faqs',
+            'id', 'status', 'title', 'country', 'welcome_message',
+            'duration_days', 'accommodation','bonus','available_spots',
+            'formatted_start_date', 'formatted_end_date', 'group_size',
+            'leaders', 'ask_title', 'description', 'created_at', 'photos',
+            'program_by_days','included_features', 'trip_dates', 'faqs',
         ]
 
-class TripListSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def get_available_spots(obj):
+        total_members = sum(trip_date.current_members for trip_date in obj.trip_dates_list)
+        # Calculate available spots
+        return max(0, obj.group_size - total_members)
+
+    @staticmethod
+    def get_formatted_start_date(obj):
+        return obj.trip_dates_list[0].start_date.strftime('%d %b, %Y')
+
+    @staticmethod
+    def get_formatted_end_date(obj):
+        return obj.trip_dates_list[0].end_date.strftime('%d %b, %Y')
+
+class TripListSerializer(TripRetrieveSerializer):
     photo = serializers.SerializerMethodField()
-    start_date = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField(read_only=True)
     country = serializers.SerializerMethodField()
-    available_spots = serializers.SerializerMethodField()
 
     class Meta:
         model = Trip
-        fields = ['id', 'start_date', 'price', 'available_spots', 'photo', 'status', 'title', 'country', 'duration_days', 'group_size', ]
+        fields = ['id', 'formatted_start_date', 'price', 'available_spots', 'photo', 'status', 'title', 'country', 'duration_days', 'group_size', ]
 
     @staticmethod
     def get_photo(obj):
@@ -100,18 +92,8 @@ class TripListSerializer(serializers.ModelSerializer):
         return price if price else 0.00
 
     @staticmethod
-    def get_start_date(obj):
-        trip_dates = getattr(obj, 'trip_dates_list', [])
-        return trip_dates[0].start_date.strftime('%d %b, %Y') if trip_dates else None
-
-    @staticmethod
     def get_country(obj):
         return obj.get_country_display()
-
-    @staticmethod
-    def get_available_spots(obj):
-        trip_dates = getattr(obj, 'trip_dates_list', [])
-        return trip_dates[0].available_spots if trip_dates else None
 
 
 class TripRequestSerializer(serializers.ModelSerializer):
