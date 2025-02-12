@@ -70,31 +70,32 @@ Now, visit [**http://127.0.0.1:8000/**](http://127.0.0.1:8000/) in your browser!
 
 ### 🔹 Trips Endpoints
 
-| Method | Endpoint                           | Description                      |
-| ------ |------------------------------------| -------------------------------- |
-| GET    | `/trips/`                          | List all trips                   |
-| GET    | `/trips/<id>/`                     | Get details of a trip            |
+| Method              | Endpoint                           | Description                      |
+|---------------------|------------------------------------|----------------------------------|
+| GET/POST            | `/trips/`                          | List/create all trips            |
+| GET/PUT/DELETE/PATH | `/trips/<id>/`                     | Get details of a trip and Update |
 
 ### 🔹 Countries
 
-| Method | Endpoint                     | Description                                   |
-| ------ |------------------------------|-----------------------------------------------|
-| GET    | `/countries/`                | List all countries with a featured trip photo |
-| GET    | `/countries/<country_code>/` | Returns all trips for a specific country.     |
+| Method | Endpoint                           | Description                                   |
+| ------ |------------------------------------|-----------------------------------------------|
+| GET    | `/trips/countries/`                | List all countries with a featured trip photo |
+| GET    | `/trips/countries/<country_code>/` | Returns all trips for a specific country.     |
 
 ### 🔹 Trip Requests
 
-| Method | Endpoint      | Description        |
-| ------ |---------------|--------------------|
-| POST   | `/request/`   | Request for trip   |
+| Method   | Endpoint      | Description               |
+|----------|---------------|---------------------------|
+| GET/POST | `/request/`   | Request for trip and List |
 
 ### 🔹 Trip Requests
 
-| Method | Endpoint                 | Description        |
-|--------|--------------------------|--------------------|
-| GET    | `/photos/main-photos`    | All main photos    |
-| GET    | `/photos/gallery-photos` | All gallery photos |
-| GET    | `/photos/slide-photos`   | All slide photos   |
+| Method    | Endpoint                 | Description             |
+|-----------|--------------------------|-------------------------|
+| GET/POST  | `/photos/`               | add & retrieve photos   |
+| GET       | `/photos/main-photos`    | All main photos         |
+| GET       | `/photos/gallery-photos` | All gallery photos      |
+| GET       | `/photos/slide-photos`   | All slide photos        |
 
 ---
 
