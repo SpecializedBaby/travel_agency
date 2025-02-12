@@ -113,3 +113,16 @@ class CountrySerializer(serializers.Serializer):
     @staticmethod
     def get_country_name(obj):
         return dict(Trip.COUNTRY_CHOICES).get(obj["country"], obj["country"])
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'avatar', 'text', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class SocialLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sociallink
+        fields = ['id', 'name', 'icon', 'url', ]
