@@ -84,9 +84,9 @@ Now, visit [**http://127.0.0.1:8000/**](http://127.0.0.1:8000/) in your browser!
 
 ### 🔹 Trip Requests
 
-| Method | Endpoint            | Description        |
-| ------ |---------------------|--------------------|
-| POST   | `/trip-requests/`   | Request for trip   |
+| Method | Endpoint      | Description        |
+| ------ |---------------|--------------------|
+| POST   | `/request/`   | Request for trip   |
 
 ### 🔹 Trip Requests
 
