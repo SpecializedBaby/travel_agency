@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Manrope } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const archivoSans = Archivo({
+  variable: "--font-archivo-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manropeSans = Manrope({
+  variable: "--font-manrope-sans",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "FieryTrips - travel agency",
+  title: "FieryTrips - authors trips",
   description: "We are a company of young enthusiasts in love with the road, organizing tours for like-minded people.",
 };
 
