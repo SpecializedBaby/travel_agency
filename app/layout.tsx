@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 
-import { Archivo, Manrope } from "next/font/google";
+import { Archivo, Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+})
 
 const archivoSans = Archivo({
   variable: "--font-archivo-sans",
@@ -29,7 +35,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Navbar/>
-        <main className="relative overflow-hidden">
+        <main className={`${poppins.variable} font-sans`}>
           {children}
         </main>
         <Footer/>
