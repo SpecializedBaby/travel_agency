@@ -1,133 +1,199 @@
-"use client"; // Required for using React hooks in Next.js
+"use client"
 
-import { useState } from "react";
-import { NAV_LINKS } from "@/constants"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { Search, Menu, X, ChevronDown } from "lucide-react"
+import { NAV_LINKS } from "@/constants"
 import Button from "./Button"
 
-const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+export default function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+  const langDropdownRef = useRef<HTMLDivElement>(null)
+  let closeTimeout: NodeJS.Timeout | null = null
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleSearch = async () => {
-    if (searchQuery.trim()) {
-      try {
-        const response = await fetch("/api/search", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ query: searchQuery }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Search results:", data);
-          // Handle search results (e.g., redirect or display results)
-        } else {
-          console.error("Search failed");
-        }
-      } catch (error) {
-        console.error("Error during search:", error);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setLangDropdownOpen(false)
       }
     }
-  };
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  const handleLangDropdownToggle = () => {
+    setLangDropdownOpen(!langDropdownOpen)
+    if (closeTimeout) clearTimeout(closeTimeout)
+  }
+
+  const handleLangDropdownEnter = () => {
+    if (closeTimeout) clearTimeout(closeTimeout)
+    setLangDropdownOpen(true)
+  }
+
+  const handleLangDropdownLeave = () => {
+    closeTimeout = setTimeout(() => setLangDropdownOpen(false), 300)
+  }
 
   return (
-    <nav className="border-2 border-red-500 flexBetween max-container 
-    padding-container relative z-30 py-5">
-      {/* Logo */}
-      <Link href="/">
-        <Image src="/fierytrips.svg" alt="logo" width={74} height={29} />
-      </Link>
-
-      {/* Navigation Links (Hidden on Mobile) */}
-      <ul
-        className={`hidden h-full gap-12 lg:flex ${
-          isMenuOpen ? "flex flex-col absolute top-20 right-0 bg-white p-4 shadow-lg" : ""
-        }`}
-      >
-        {NAV_LINKS.map((link) => (
-          <Link 
-            href={link.href} 
-            key={link.key} 
-            className="regular-16 text-gray-50 cursor-pointer pb-1.5 transition-all 
-hover:font-bold"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </ul>
-
-      {/* Search Field */}
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="py-2 px-4 pr-10 rounded-full bg-gray-100 
-focus:outline-none focus:ring-2 focus:ring-primary"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button
-          onClick={handleSearch}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-        >
-          <Image src="/search.svg" alt="search" width={20} height={20} />
-        </button>
-      </div>
-
-      {/* Login Button (Hidden on Mobile) */}
-      <div className="lg:flexCenter hidden">
-        <Button
-          type="button"
-          title="Login"
-          icon="/user.svg"
-          variant="btn_dark_green"
-        />
-      </div>
-
-      {/* Hamburger Menu (Visible on Mobile) */}
-      <div className="lg:hidden flex items-center">
-      <Image
-        src="menu.svg"
-        alt="menu"
-        width={32}
-        height={32}
-        className="inline-block corsor-pointer lg:hidden"
-        onClick={toggleMenu}
-      />
-      </div>
-
-      {/* Mobile Menu Dropdown */}
-      {isMenuOpen && (
-        <div className="lg:hidden absolute top-20 right-0 bg-white p-4 shadow-lg rounded-lg">
-          <ul className="flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <Link 
-                href={link.href}
-                key={link.key}
-                className="regular-16 text-gray-50 cursor-pointer pb-1.5 transition-all hover:font-bold"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Button
-              type="button"
-              title="Login"
-              icon="user.svg"
-              variant="btn_dark_green"
-            />
-          </ul>
+    <header className="absolute top-0 left-0 right-0 z-20 px-4 py-6">
+      <div className="container mx-auto flex items-center justify-between">
+        {/* Logo and brand name */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Image
+            src="/fierytrips.svg"
+            alt="FieryTrips Logo"
+            width={50}
+            height={50}
+            className="text-[#f26336]"
+          />
+          <span className="text-2xl font-bold text-[#212832]">FieryTrips</span>
         </div>
-      )}
-    </nav>
-  );
-};
 
-export default Navbar
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-8">
+          {NAV_LINKS.map((link) => (
+            <Link key={link.key} href={link.href} className="text-[#212832] hover:text-[#f26336]">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop Search */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-48 pl-3 pr-10 py-2 border border-[#c4c4c4] rounded-md text-[#212832] focus:outline-none focus:ring-2 focus:ring-[#f26336] focus:border-transparent"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#212832]" size={18} />
+          </div>
+
+          <Link href="#" className="text-[#212832] hover:text-[#f26336]">
+            Sign In
+          </Link>
+          <Button href="#" variant="outline">
+            Sign up
+          </Button>
+          <div
+            ref={langDropdownRef}
+            className="relative"
+            onMouseEnter={handleLangDropdownEnter}
+            onMouseLeave={handleLangDropdownLeave}
+          >
+            <button
+              className="flex items-center gap-1 text-[#212832] hover:text-[#f26336]"
+              onClick={handleLangDropdownToggle}
+            >
+              <span className="font-medium">EN</span>
+              <ChevronDown size={16} />
+            </button>
+            {langDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg">
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  English
+                </Link>
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  Español
+                </Link>
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  Français
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tablet and Mobile Actions */}
+        <div className="flex lg:hidden items-center gap-2">
+          <div
+            ref={langDropdownRef}
+            className="relative"
+            onMouseEnter={handleLangDropdownEnter}
+            onMouseLeave={handleLangDropdownLeave}
+          >
+            <button
+              className="flex items-center gap-1 text-[#212832] hover:text-[#f26336]"
+              onClick={handleLangDropdownToggle}
+            >
+              <span className="font-medium">EN</span>
+              <ChevronDown size={16} />
+            </button>
+            {langDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg">
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  English
+                </Link>
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  Español
+                </Link>
+                <Link href="#" className="block px-4 py-2 text-sm text-[#212832] hover:bg-gray-100">
+                  Français
+                </Link>
+              </div>
+            )}
+          </div>
+          <button
+            className="text-[#212832] hover:text-[#f26336] p-2"
+            onClick={() => setSearchOpen(!searchOpen)}
+          >
+            <Search size={24} />
+          </button>
+          <button
+            className="text-[#212832] hover:text-[#f26336] p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Search Dropdown */}
+        {searchOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg p-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full pl-3 pr-10 py-2 border border-[#212832] rounded-md text-[#212832] focus:outline-none focus:ring-2 focus:ring-[#f26336] focus:border-transparent"
+              />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#212832]" size={20} />
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-lg p-4 lg:hidden z-10">
+            <nav className="flex flex-col gap-4 mb-6">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  className="text-[#212832] hover:text-[#f26336] py-2 border-b border-gray-100"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex flex-col gap-3">
+              <Link href="#" className="text-[#212832] hover:text-[#f26336] font-medium">
+                Sign In
+              </Link>
+              <Button href="#" variant="outline" className="w-full">
+                Sign up
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}
