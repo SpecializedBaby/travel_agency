@@ -1,0 +1,554 @@
+### FieryTrips Database Architecture
+
+Below is a comprehensive database architecture for the FieryTrips project, designed to support all the features we've implemented in the UI. This architecture can be used to build the API models for your backend.
+
+## Database Schema
+
+### 1. Users
+
+```plaintext
+Table: users
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| username | VARCHAR(50) | Unique username | Unique, Not Null
+| email | VARCHAR(100) | User's email address | Unique, Not Null
+| password_hash | VARCHAR(255) | Hashed password | Not Null
+| first_name | VARCHAR(50) | User's first name | Not Null
+| last_name | VARCHAR(50) | User's last name | Not Null
+| profile_image | VARCHAR(255) | URL to profile image | Nullable
+| role | ENUM | User role (admin, customer, author) | Not Null, Default: 'customer'
+| created_at | TIMESTAMP | Account creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+| last_login | TIMESTAMP | Last login date | Nullable
+| is_verified | BOOLEAN | Email verification status | Not Null, Default: false
+| is_active | BOOLEAN | Account status | Not Null, Default: true
+
+
+### 2. Authors
+
+```plaintext
+Table: authors
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| user_id | UUID | Reference to users table | Foreign Key, Not Null
+| profession | VARCHAR(100) | Author's profession | Not Null
+| bio | TEXT | Author's biography | Not Null
+| experience_years | INTEGER | Years of experience | Not Null
+| rating | DECIMAL(3,2) | Average rating (1-5) | Not Null, Default: 0
+| review_count | INTEGER | Number of reviews | Not Null, Default: 0
+| languages | JSON | Languages spoken | Not Null, Default: '[]'
+| specialties | JSON | Areas of expertise | Not Null, Default: '[]'
+| social_media | JSON | Social media links | Nullable
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 3. Countries
+
+```plaintext
+Table: countries
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| name | VARCHAR(100) | Country name | Unique, Not Null
+| code | VARCHAR(3) | ISO country code | Unique, Not Null
+| description | TEXT | Country description | Not Null
+| capital | VARCHAR(100) | Capital city | Not Null
+| language | VARCHAR(100) | Official language | Not Null
+| currency | VARCHAR(100) | Local currency | Not Null
+| best_time_to_visit | VARCHAR(100) | Recommended travel season | Not Null
+| image | VARCHAR(255) | URL to country image | Not Null
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 4. Popular Destinations
+
+```plaintext
+Table: popular_destinations
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| country_id | UUID | Reference to countries table | Foreign Key, Not Null
+| name | VARCHAR(100) | Destination name | Not Null
+| description | TEXT | Destination description | Nullable
+| image | VARCHAR(255) | URL to destination image | Nullable
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 5. Trips
+
+```plaintext
+Table: trips
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| author_id | UUID | Reference to authors table | Foreign Key, Not Null
+| title | VARCHAR(100) | Trip title | Not Null
+| slug | VARCHAR(150) | URL-friendly title | Unique, Not Null
+| description | TEXT | Short trip description | Not Null
+| long_description | TEXT | Detailed trip description | Not Null
+| destination | VARCHAR(100) | General destination area | Not Null
+| duration | INTEGER | Trip duration in days | Not Null
+| price | DECIMAL(10,2) | Trip price | Not Null
+| group_size_min | INTEGER | Minimum group size | Not Null
+| group_size_max | INTEGER | Maximum group size | Not Null
+| difficulty | ENUM | Trip difficulty level | Not Null
+| featured | BOOLEAN | Featured trip status | Not Null, Default: false
+| rating | DECIMAL(3,2) | Average rating (1-5) | Not Null, Default: 0
+| review_count | INTEGER | Number of reviews | Not Null, Default: 0
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+| is_active | BOOLEAN | Trip availability status | Not Null, Default: true
+
+
+### 6. Trip Images
+
+```plaintext
+Table: trip_images
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| image_url | VARCHAR(255) | URL to image | Not Null
+| alt_text | VARCHAR(100) | Image description | Not Null
+| is_primary | BOOLEAN | Primary image flag | Not Null, Default: false
+| display_order | INTEGER | Display order | Not Null, Default: 0
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 7. Trip Countries
+
+```plaintext
+Table: trip_countries
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| country_id | UUID | Reference to countries table | Foreign Key, Not Null
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 8. Trip Dates
+
+```plaintext
+Table: trip_dates
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| start_date | DATE | Trip start date | Not Null
+| end_date | DATE | Trip end date | Not Null
+| price | DECIMAL(10,2) | Price for this date | Nullable
+| spots_total | INTEGER | Total available spots | Not Null
+| spots_booked | INTEGER | Number of booked spots | Not Null, Default: 0
+| is_active | BOOLEAN | Date availability status | Not Null, Default: true
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 9. Itinerary Days
+
+```plaintext
+Table: itinerary_days
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| day_number | INTEGER | Day number in itinerary | Not Null
+| title | VARCHAR(100) | Day title | Not Null
+| description | TEXT | Day description | Not Null
+| accommodation | VARCHAR(255) | Accommodation details | Nullable
+| meals | JSON | Included meals | Not Null, Default: '[]'
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 10. Trip Inclusions
+
+```plaintext
+Table: trip_inclusions
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| description | VARCHAR(255) | Inclusion description | Not Null
+| inclusion_type | ENUM | Type (included/not included) | Not Null
+| display_order | INTEGER | Display order | Not Null, Default: 0
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 11. Reviews
+
+```plaintext
+Table: reviews
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| user_id | UUID | Reference to users table | Foreign Key, Not Null
+| rating | INTEGER | Rating (1-5) | Not Null
+| title | VARCHAR(100) | Review title | Not Null
+| content | TEXT | Review content | Not Null
+| trip_date | DATE | Date of trip taken | Not Null
+| is_verified | BOOLEAN | Verified purchase status | Not Null, Default: false
+| is_published | BOOLEAN | Publication status | Not Null, Default: false
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 12. Bookings
+
+```plaintext
+Table: bookings
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| user_id | UUID | Reference to users table | Foreign Key, Not Null
+| trip_id | UUID | Reference to trips table | Foreign Key, Not Null
+| trip_date_id | UUID | Reference to trip_dates table | Foreign Key, Not Null
+| booking_number | VARCHAR(20) | Unique booking reference | Unique, Not Null
+| status | ENUM | Booking status | Not Null, Default: 'pending'
+| number_of_travelers | INTEGER | Number of travelers | Not Null
+| total_price | DECIMAL(10,2) | Total booking price | Not Null
+| special_requests | TEXT | Special requests | Nullable
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 13. Travelers
+
+```plaintext
+Table: travelers
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| booking_id | UUID | Reference to bookings table | Foreign Key, Not Null
+| first_name | VARCHAR(50) | Traveler's first name | Not Null
+| last_name | VARCHAR(50) | Traveler's last name | Not Null
+| email | VARCHAR(100) | Traveler's email | Not Null
+| phone | VARCHAR(20) | Traveler's phone | Nullable
+| date_of_birth | DATE | Traveler's birth date | Not Null
+| passport_number | VARCHAR(50) | Passport number | Nullable
+| passport_expiry | DATE | Passport expiry date | Nullable
+| nationality | VARCHAR(50) | Traveler's nationality | Not Null
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 14. Payments
+
+```plaintext
+Table: payments
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| booking_id | UUID | Reference to bookings table | Foreign Key, Not Null
+| amount | DECIMAL(10,2) | Payment amount | Not Null
+| currency | VARCHAR(3) | Payment currency | Not Null
+| payment_method | VARCHAR(50) | Payment method | Not Null
+| transaction_id | VARCHAR(100) | External transaction ID | Unique, Not Null
+| status | ENUM | Payment status | Not Null
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+### 15. Subscriptions
+
+```plaintext
+Table: subscriptions
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| email | VARCHAR(100) | Subscriber's email | Unique, Not Null
+| first_name | VARCHAR(50) | Subscriber's first name | Nullable
+| last_name | VARCHAR(50) | Subscriber's last name | Nullable
+| preferences | JSON | Email preferences | Not Null, Default: ''
+| is_active | BOOLEAN | Subscription status | Not Null, Default: true
+| confirmation_token | VARCHAR(100) | Email confirmation token | Nullable
+| is_confirmed | BOOLEAN | Email confirmation status | Not Null, Default: false
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+| last_email_sent | TIMESTAMP | Last email sent date | Nullable
+
+
+### 16. Contact Messages
+
+```plaintext
+Table: contact_messages
+```
+
+| Field | Type | Description | Constraints
+|-----|-----|-----|-----
+| id | UUID | Unique identifier | Primary Key
+| name | VARCHAR(100) | Sender's name | Not Null
+| email | VARCHAR(100) | Sender's email | Not Null
+| subject | VARCHAR(200) | Message subject | Not Null
+| message | TEXT | Message content | Not Null
+| trip_id | UUID | Reference to trips table | Foreign Key, Nullable
+| author_id | UUID | Reference to authors table | Foreign Key, Nullable
+| status | ENUM | Message status | Not Null, Default: 'unread'
+| created_at | TIMESTAMP | Record creation date | Not Null, Default: CURRENT_TIMESTAMP
+| updated_at | TIMESTAMP | Last update date | Not Null, Default: CURRENT_TIMESTAMP
+
+
+## Relationships
+
+1. **Users to Authors**: One-to-One
+
+1. A user can be an author (if they have the author role)
+2. An author must be a user
+
+
+
+2. **Authors to Trips**: One-to-Many
+
+1. An author can create multiple trips
+2. A trip belongs to one author
+
+
+
+3. **Countries to Popular Destinations**: One-to-Many
+
+1. A country can have multiple popular destinations
+2. A popular destination belongs to one country
+
+
+
+4. **Trips to Trip Images**: One-to-Many
+
+1. A trip can have multiple images
+2. An image belongs to one trip
+
+
+
+5. **Trips to Countries**: Many-to-Many (via trip_countries)
+
+1. A trip can include multiple countries
+2. A country can be included in multiple trips
+
+
+
+6. **Trips to Trip Dates**: One-to-Many
+
+1. A trip can have multiple available dates
+2. A trip date belongs to one trip
+
+
+
+7. **Trips to Itinerary Days**: One-to-Many
+
+1. A trip has multiple itinerary days
+2. An itinerary day belongs to one trip
+
+
+
+8. **Trips to Trip Inclusions**: One-to-Many
+
+1. A trip has multiple inclusions/exclusions
+2. An inclusion belongs to one trip
+
+
+
+9. **Users to Reviews**: One-to-Many
+
+1. A user can write multiple reviews
+2. A review belongs to one user
+
+
+
+10. **Trips to Reviews**: One-to-Many
+
+1. A trip can have multiple reviews
+2. A review belongs to one trip
+
+
+
+11. **Users to Bookings**: One-to-Many
+
+1. A user can make multiple bookings
+2. A booking belongs to one user
+
+
+
+12. **Trips to Bookings**: One-to-Many
+
+1. A trip can have multiple bookings
+2. A booking belongs to one trip
+
+
+
+13. **Trip Dates to Bookings**: One-to-Many
+
+1. A trip date can have multiple bookings
+2. A booking is for one specific trip date
+
+
+
+14. **Bookings to Travelers**: One-to-Many
+
+1. A booking can include multiple travelers
+2. A traveler belongs to one booking
+
+
+
+15. **Bookings to Payments**: One-to-Many
+
+1. A booking can have multiple payments
+2. A payment belongs to one booking
+
+
+
+
+
+## API Endpoints
+
+Based on this database schema, here are the key API endpoints you would implement:
+
+### Authentication
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `PUT /api/auth/me`
+- `POST /api/auth/password/reset`
+
+
+### Countries
+
+- `GET /api/countries` - List all countries
+- `GET /api/countries/:id` - Get country details
+- `GET /api/countries/:id/destinations` - Get popular destinations in a country
+- `GET /api/countries/:id/trips` - Get trips that include this country
+
+
+### Authors
+
+- `GET /api/authors` - List all authors
+- `GET /api/authors/:username` - Get author details
+- `GET /api/authors/:username/trips` - Get trips by this author
+- `POST /api/authors/:username/contact` - Contact an author
+
+
+### Trips
+
+- `GET /api/trips` - List all trips (with filtering)
+- `GET /api/trips/:slug` - Get trip details
+- `GET /api/trips/:slug/dates` - Get available dates
+- `GET /api/trips/:slug/reviews` - Get trip reviews
+- `POST /api/trips/:slug/reviews` - Add a review
+- `GET /api/trips/:slug/itinerary` - Get trip itinerary
+
+
+### Bookings
+
+- `POST /api/bookings` - Create a booking
+- `GET /api/bookings/:id` - Get booking details
+- `PUT /api/bookings/:id` - Update booking
+- `POST /api/bookings/:id/payments` - Make a payment
+- `GET /api/bookings/:id/travelers` - Get travelers
+- `POST /api/bookings/:id/travelers` - Add travelers
+
+
+### Subscriptions
+
+- `POST /api/subscriptions` - Subscribe to newsletter
+- `GET /api/subscriptions/confirm/:token` - Confirm subscription
+- `DELETE /api/subscriptions/:id` - Unsubscribe
+
+
+### Contact
+
+- `POST /api/contact` - Send a contact message
+
+
+## Implementation Considerations
+
+1. **Authentication & Authorization**
+
+1. Use JWT (JSON Web Tokens) for authentication
+2. Implement role-based access control (RBAC)
+3. Secure password storage with bcrypt or Argon2
+
+
+
+2. **Performance Optimization**
+
+1. Index frequently queried fields
+2. Implement caching for popular trips and countries
+3. Use pagination for list endpoints
+
+
+
+3. **Data Validation**
+
+1. Validate all input data on the server side
+2. Implement comprehensive error handling
+
+
+
+4. **File Storage**
+
+1. Store images in a cloud storage service (AWS S3, Google Cloud Storage)
+2. Generate and store multiple image sizes for responsive design
+
+
+
+5. **Search Functionality**
+
+1. Implement full-text search for trips and destinations
+2. Allow filtering by multiple criteria (price, duration, country, etc.)
+
+
+
+6. **Internationalization**
+
+1. Support multiple languages for content
+2. Handle currency conversion
+
+
+
+7. **Analytics**
+
+1. Track page views, search queries, and booking conversions
+2. Implement A/B testing for featured trips
+
+
+
+
+
+This database architecture provides a solid foundation for building the FieryTrips platform, supporting all the features we've implemented in the UI while allowing for future expansion.
