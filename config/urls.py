@@ -1,5 +1,5 @@
 """
-URL configuration for travel_agency project.
+URL configuration for config project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -16,11 +16,11 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path("", include("agency.urls", namespace="agency")),
+    path("", include("apps.accounts.urls", namespace="accounts")),
 ] + debug_toolbar_urls()
